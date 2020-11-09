@@ -1,4 +1,5 @@
 import numpy as np
+import warnings as wrn
 
 class Art2:
     def __init__(self, input_size: int, output_size: int, vigilance: float, theta: float):
@@ -35,16 +36,9 @@ class Art2:
 
         for epoch in range(epochs): # step 1
             for i in range(len(inputs)): # step 2
-                self.w = np.zeros(self.input_size)
-                self.x = np.zeros(self.input_size)
-                self.u = np.zeros(self.input_size)
-                self.v = np.zeros(self.input_size)
-                self.p = np.zeros(self.input_size)
-                self.q = np.zeros(self.input_size)
-
 
                 self.s = inputs[i]
-                print(self.s)
+
                 # steps 3, 4
                 self.forward_prop()
 
@@ -56,7 +50,9 @@ class Art2:
 
                     # step 6
                     j = np.argmax(self.f2)
-                    print(j)
+                    if(self.f2[j] == -1):
+                        wrn.warn('Too few classes')
+                        break
                     # TODO no reaction to lack of available new classes
 
                     # step 7
@@ -79,8 +75,6 @@ class Art2:
                     # step 9
                     self.t[j,:] = self.alpha * self.d * self.u + (1 + self.a * self.d * (self.d - 1)) * self.t[j,:]
                     self.wei[:,j] = self.alpha * self.d * self.u + (1 + self.a * self.d * (self.d - 1)) * self.wei[:,j]
-                    print(self.wei)
-                    print(self.t)
                     # step 10
 
                     self.update_F1_act(j)
@@ -94,15 +88,16 @@ class Art2:
             pass
 
     def forward_prop(self):
+        self.init_F1_act()
         # step 3
 
         # step 3.1
         self.u = np.zeros(self.input_size)
         self.p = np.zeros(self.input_size)
         self.q = np.zeros(self.input_size)
-        self.w = self.s
-        self.x = self.s / (self.e + self.norm(self.s))
-        self.v = self.threshold_func(self.x)
+        self.update_W() # self.w = self.s
+        self.update_X() # self.x = self.s / (self.e + self.norm(self.s))
+        self.update_V() # self.v = self.threshold_func(self.x)
 
         # step 3.2
 
@@ -149,7 +144,15 @@ class Art2:
     def update_F1_act(self, ind:int):
         self.update_U() # self.u = self.v / (self.e + self.norm(self.v))
         self.update_W() # self.w = self.s + self.a * self.u
-        self.update_P(ind) # self.p = self.u.copy() # TODO is this copy?
+        self.update_P(ind) # self.p = self.u.copy()
         self.update_X() # self.x = self.w / (self.e + self.norm(self.w))
         self.update_Q() # self.q = self.p / (self.e + self.norm(self.p))
         self.update_V() # self.v = self.threshold_func(self.x) + self.b * self.threshold_func(self.q)
+
+    def init_F1_act(self):
+        self.w = np.zeros(self.input_size)
+        self.x = np.zeros(self.input_size)
+        self.u = np.zeros(self.input_size)
+        self.v = np.zeros(self.input_size)
+        self.p = np.zeros(self.input_size)
+        self.q = np.zeros(self.input_size)
