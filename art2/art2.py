@@ -19,7 +19,7 @@ class Art2:
         self.d = 0.9
         self.e = 0.00001
 
-        self.alpha =0.6
+        self.alpha = 0.6
 
         self.w = np.zeros(self.input_size)
         self.x = np.zeros(self.input_size)
@@ -56,8 +56,8 @@ class Art2:
                     # TODO no reaction to lack of available new classes
 
                     # step 7
-                    self.u = self.v / (self.e + self.norm(self.v))
-                    self.p = self.u + self.d * self.t[j,:]
+                    self.update_U() # self.u = self.v / (self.e + self.norm(self.v))
+                    self.update_P(j) # self.p = self.u + self.d * self.t[j,:]
                     r = (self.u + self.c * self.p) / (self.e + self.norm(self.u) + self.c * self.norm(self.p))
 
                     if self.norm(r) < self.vigilance - self.e: # no resonance
@@ -117,29 +117,35 @@ class Art2:
 
     def threshold_func(self, vector: np.ndarray):
         result = vector.copy() # TODO is this copy?
-        result[vector < self.theta] = 0
+        result[vector < self.theta] = 0 # TODO how should it react to negative numbers?
         return result
 
     def update_W(self):
         self.w = self.s + self.a * self.u
+        # print(f'W: {self.w}')
 
     def update_U(self):
         self.u = self.v / (self.e + self.norm(self.v))
+        # print(f'U: {self.u}')
 
     def update_P(self, j: int):
         if j >= 0:
             self.p = self.u + self.d * self.t[j,:]
         else:
-            self.p = self.u.copy()
+            self.p = self.u.copy() # TODO this may be unnecessary (when it's used t[j,:] = 0(?), so both cases are equivalent)
+        # print(f'P: {self.p}')
 
     def update_X(self):
         self.x = self.w / (self.e + self.norm(self.w))
+        # print(f'X: {self.x}')
 
     def update_Q(self):
         self.q = self.p / (self.e + self.norm(self.p))
+        # print(f'Q: {self.q}')
 
     def update_V(self):
         self.v = self.threshold_func(self.x) + self.b * self.threshold_func(self.q)
+        # print(f'V: {self.v}')
 
     def update_F1_act(self, ind:int):
         self.update_U() # self.u = self.v / (self.e + self.norm(self.v))
