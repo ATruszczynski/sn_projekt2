@@ -11,7 +11,7 @@ class Art2:
         self.s = np.zeros(self.input_size)
         self.f1 = np.zeros(self.input_size)
         self.f2 = np.zeros(self.output_size)
-        self.first_free = 0
+        # self.first_free = 0
 
         self.a = 10
         self.b = 10
@@ -32,7 +32,6 @@ class Art2:
         self.t = np.zeros([self.output_size, self.input_size])
 
     def learn(self, inputs: [np.ndarray], epochs: int, learning_its: int):
-
 
         for epoch in range(epochs): # step 1
             for i in range(len(inputs)): # step 2
