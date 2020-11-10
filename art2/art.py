@@ -37,11 +37,14 @@ class Art2:
             for i in range(len(inputs)): # step 2
 
                 self.s = inputs[i]
-
+                # print(i)
                 # steps 3-8
                 j = self.predict(self.s)
+                # print(j)
                 for it in range(learning_its):
                     # step 9
+                    # print(self.u)
+
                     self.t[j,:] = self.alpha * self.d * self.u + (1 + self.alpha * self.d * (self.d - 1)) * self.t[j,:]
                     self.wei[:,j] = self.alpha * self.d * self.u + (1 + self.alpha * self.d * (self.d - 1)) * self.wei[:,j]
                     # step 10
@@ -94,14 +97,14 @@ class Art2:
 
             if self.norm(r) < self.vigilance - self.e: # no resonance
                 self.f2[j] = -1 # go to step 5
-                pass
+
             else: # resonance
+                # print(self.norm(r))
                 self.update_W() # self.w = self.s + self.a * self.u
                 self.update_X() # self.x = self.w / (self.e + self.norm(self.w))
                 self.update_Q() # self.q = self.p / (self.e + self.norm(self.p))
                 self.update_V() # self.v = self.threshold_func(self.x) + self.b * self.threshold_func(self.q)
                 reset = False
-                pass
 
         return j
 
