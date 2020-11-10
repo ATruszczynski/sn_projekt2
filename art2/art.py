@@ -38,42 +38,12 @@ class Art2:
 
                 self.s = inputs[i]
 
-                # steps 3, 4
-                self.forward_prop()
-
-                # step 5
-
-                reset = True
-
-                while reset:
-
-                    # step 6
-                    j = np.argmax(self.f2)
-                    if(self.f2[j] == -1):
-                        wrn.warn('Too few classes')
-                        break
-                    # TODO no reaction to lack of available new classes
-
-                    # step 7
-                    self.update_U() # self.u = self.v / (self.e + self.norm(self.v))
-                    self.update_P(j) # self.p = self.u + self.d * self.t[j,:]
-                    r = (self.u + self.c * self.p) / (self.e + self.norm(self.u) + self.c * self.norm(self.p))
-
-                    if self.norm(r) < self.vigilance - self.e: # no resonance
-                        self.f2[j] = -1 # go to step 5
-                        pass
-                    else: # resonance
-                        self.update_W() # self.w = self.s + self.a * self.u
-                        self.update_X() # self.x = self.w / (self.e + self.norm(self.w))
-                        self.update_Q() # self.q = self.p / (self.e + self.norm(self.p))
-                        self.update_V() # self.v = self.threshold_func(self.x) + self.b * self.threshold_func(self.q)
-                        reset = False
-                        pass
-
-                for i in range(learning_its):
+                # steps 3-8
+                j = self.predict(self.s)
+                for it in range(learning_its):
                     # step 9
-                    self.t[j,:] = self.alpha * self.d * self.u + (1 + self.a * self.d * (self.d - 1)) * self.t[j,:]
-                    self.wei[:,j] = self.alpha * self.d * self.u + (1 + self.a * self.d * (self.d - 1)) * self.wei[:,j]
+                    self.t[j,:] = self.alpha * self.d * self.u + (1 + self.alpha * self.d * (self.d - 1)) * self.t[j,:]
+                    self.wei[:,j] = self.alpha * self.d * self.u + (1 + self.alpha * self.d * (self.d - 1)) * self.wei[:,j]
                     # step 10
 
                     self.update_F1_act(j)
@@ -106,10 +76,41 @@ class Art2:
 
         self.f2 = np.dot(self.wei.T, self.p)
 
-    def predict(self, vector: np.ndarray):
+    def select_resonant(self) -> int:
+        reset = True
+        while reset:
+
+            # step 6
+            j = np.argmax(self.f2)
+            if(self.f2[j] == -1):
+                wrn.warn('Too few classes')
+                break
+            # TODO no reaction to lack of available new classes
+
+            # step 7
+            self.update_U() # self.u = self.v / (self.e + self.norm(self.v))
+            self.update_P(j) # self.p = self.u + self.d * self.t[j,:]
+            r = (self.u + self.c * self.p) / (self.e + self.norm(self.u) + self.c * self.norm(self.p))
+
+            if self.norm(r) < self.vigilance - self.e: # no resonance
+                self.f2[j] = -1 # go to step 5
+                pass
+            else: # resonance
+                self.update_W() # self.w = self.s + self.a * self.u
+                self.update_X() # self.x = self.w / (self.e + self.norm(self.w))
+                self.update_Q() # self.q = self.p / (self.e + self.norm(self.p))
+                self.update_V() # self.v = self.threshold_func(self.x) + self.b * self.threshold_func(self.q)
+                reset = False
+                pass
+
+        return j
+
+    def predict(self, vector: np.ndarray) -> int:
         self.s = vector
         self.forward_prop()
-        return np.argmax(self.f2)
+        # print(self.p)
+        j = self.select_resonant()
+        return j
 
     def norm(self, vector: np.ndarray):
         return np.sqrt(np.sum(np.square(vector)))

@@ -3,6 +3,8 @@ from random import *
 import numpy as np
 import matplotlib.pyplot as plt
 import sklearn.metrics as sm
+import pandas as pd
+from sklearn import preprocessing
 
 from art2 import loader
 from art2.art import Art2
@@ -13,70 +15,39 @@ from art2.art import Art2
 
 seed(1001)
 
-inputs = []
-# for i in range(10):
-#     new = np.zeros(3)
-#     c = choice([0, 1, 2])
-#     if c == 0:
-#         new[0] = 1
-#     elif c == 1:
-#         new[1] = 1
-#     else:
-#         new[2] = 1
-#     for j in range(3):
-#         new[j] += normalvariate(0,0.2)
-#     inputs.append(new)
 
-# for i in range(200):
-#     new = np.zeros(4)
-#     c = choice([0, 1])
-#
-#     new[c] = 1
-#
-#     for j in [2,3]:
-#         new[j] = randint(0,1)
-#
-#     for j in range(4):
-#         new[j] += normalvariate(0,0.2)
-#     inputs.append(new)
-#
-#
-# net.learn(inputs=inputs, epochs=5, learning_its=5)
-#
-# # p = net.predict(np.array([1, 0,  0]))
-# # print(p)
-# # p = net.predict(np.array([1, 0, 0]))
-# # print(p)
-# # p = net.predict(np.array([0, 0, 1]))
-# # print(p)
-# # p = net.predict(np.array([0, 1, 0]))
-# # print(p)
-# # p = net.predict(np.array([0, 1, 0]))
-# # print(p)
-# # p = net.predict(np.array([0, 0, 1]))
-# # print(p)
-#
-# p = net.predict(np.array([1, 0,  0, 0]))
-# print(p)
-# p = net.predict(np.array([1, 0, 1, 1]))
-# print(p)
-# p = net.predict(np.array([1, 0, 1, 0]))
-# print(p)
-# p = net.predict(np.array([0, 1, 0, 0]))
-# print(p)
-# p = net.predict(np.array([0, 1, 1, 1]))
-# print(p)
-# p = net.predict(np.array([0, 1, 1, 0]))
-# print(p)
 
-points, labels = loader.load_data_from_file("C:\\Users\\aleks\\Desktop\\SN_projekt2\\SN_projekt2\\klastrowanie\\hexagon.csv")
+#points, labels = loader.load_data_from_file("C:\\Users\\aleks\\Desktop\\SN_projekt2\\SN_projekt2\\klastrowanie\\hexagon.csv")
+
+centres = [[0,10], [5,5], [10,0]]
+points = []
+labels = []
+
+for i in range(100):
+    c = randint(0,2)
+    centre = centres[c]
+    new = centre.copy()
+    for j in range(2):
+        new[j] += normalvariate(0,0.1)
+    points.append(new)
+    labels.append(c)
+
+min_max_scaler = preprocessing.MinMaxScaler()
+x_scaled = min_max_scaler.fit_transform(points)
+points = pd.DataFrame(x_scaled)
+points = points.to_numpy()
 
 # print(points)
 # print(labels)
 
-net = Art2(points.shape[1], len(np.unique(labels)), 0.999, 0.001)
+points, labels = loader.load_data_from_file("C:\\Users\\aleks\\Desktop\\SN_projekt2\\SN_projekt2\\klastrowanie\\hexagon.csv")
 
-net.learn(points, epochs=100, learning_its=5)
+net = Art2(points.shape[1], len(np.unique(labels)), 0.99, 0.0001)
+
+net.learn(points, epochs=2, learning_its=1)
+print(net.wei)
+print(net.t)
+print(net.wei.T - net.t)
 
 plt.scatter(points[:,0], points[:,1], c=labels)
 plt.show()
