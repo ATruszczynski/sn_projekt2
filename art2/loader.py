@@ -4,7 +4,7 @@ from sklearn import preprocessing
 
 def load_data_from_file(path_to_file: str, task_type=None):
     df = pd.read_csv(path_to_file)
-    df = df.sample(frac=1)
+    # df = df.sample(frac=1)
 
     # if df.columns == 3:
     #     return df['x', 'y'].to_numpy()
