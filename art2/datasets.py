@@ -37,16 +37,29 @@ def codingFunc(points: np.ndarray, step: float, a: float = 10, b:float = 2):
 
     return np.array(codedPoints)
 
-
+def codingFunc2(points: np.ndarray):
+    codedPoints = np.zeros([points.shape[0], 2 * points.shape[1]])
+    dim = points.shape[1]
+    for p in range(points.shape[0]):
+        point = points[p,:]
+        codedPoint = np.zeros([1, 2 * dim])
+        for d in range(dim):
+            if point[d] > 0:
+                codedPoint[0, 2*d] = point[d]
+            else:
+                codedPoint[0, 2*d + 1] = -point[d]
+        codedPoints[p, :] = codedPoint
+    return codedPoints
 
 def hexagons():
-    points, labels = loader.load_data_from_file(f"{pathToFolder}hexagon.csv")
+    points, labels = loader.load_data_from_file(f"{pathToFolder}hexagon.csv", norm=True) # 94%
+    codedPoints = codingFunc(points=points, step=1/10)
 
-    codedPoints = codingFunc(points, step=0.25)
-
+    # points, labels = loader.load_data_from_file(f"{pathToFolder}hexagon.csv") # 83%
+    # codedPoints = codingFunc2(points=points)
 
     net = Art2(codedPoints.shape[1], len(np.unique(labels)), 0.95, 0.0001)
-    net.learn(codedPoints, epochs=100, learning_its=5)
+    net.learn(codedPoints, epochs=10, learning_its=5)
 
     plt.scatter(points[:,0], points[:,1], c=labels)
     plt.title("Original")
@@ -66,14 +79,13 @@ def hexagons():
         print(f'Class {i} - {len(labels2[labels2==i])}')
     print(randScore)
 
-def cube():
-    points, labels = loader.load_data_from_file(f"{pathToFolder}cube.csv")
+def cube() -> Art2:
+    points, labels = loader.load_data_from_file(f"{pathToFolder}cube.csv", norm=True) # 73
+    codedPoints = codingFunc(points=points, step=0.025, a=20, b=2)
 
-    codedPoints = codingFunc(points=points, step=0.05, a=20, b=1.5)
-    # print(codedPoints)
+    # points, labels = loader.load_data_from_file(f"{pathToFolder}cube.csv") # 53
+    # codedPoints = codingFunc2(points=points)
 
-    # net = Art2(codedPoints.shape[1], len(np.unique(labels)), 0.95, 0.0001)
-    # net.learn(codedPoints, epochs=100, learning_its=5)
     net = Art2(codedPoints.shape[1], len(np.unique(labels)), 0.90, 0.0001)
     net.learn(codedPoints, epochs=10, learning_its=5)
 
@@ -100,8 +112,39 @@ def cube():
         print(f'Class {i} - {len(labels2[labels2==i])}')
     print(randScore)
 
+    return net
 
-cube()
+def cube_nm(net: Art2):
+    points, labels = loader.load_data_from_file(f"{pathToFolder}cube-notmatching.csv", norm=True)
+    codedPoints = codingFunc(points=points, step=0.025, a=20, b=2)
+
+    labels2 = []
+    for i in range(len(points)):
+        labels2.append(net.predict(codedPoints[i]))
+
+
+    fig = plt.figure(figsize = (10, 7))
+    ax = plt.axes(projection ="3d")
+    ax.scatter3D(points[:,0], points[:,1], points[:,2], c=labels)
+    plt.title("Original")
+    plt.show()
+
+    fig = plt.figure(figsize = (10, 7))
+    ax = plt.axes(projection ="3d")
+    ax.scatter3D(points[:,0], points[:,1], points[:,2], c=labels2)
+    plt.title("Clusterisation")
+    plt.show()
+
+    randScore = sm.adjusted_rand_score(labels, labels2)
+    labels2 = np.array(labels2)
+    for i in range(len(np.unique(labels2))):
+        print(f'Class {i} - {len(labels2[labels2==i])}')
+    print(randScore)
+
+
+
+net = cube()
+cube_nm(net)
 # dd  = itertools.product([1,2,3],['a','b'],[4,5])
 # for i in dd:
 #     print(i)
