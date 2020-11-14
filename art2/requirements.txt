@@ -2,3 +2,4 @@ numpy==1.19.3
 pandas
 astar_art==0.0.1
 python-mnist==0.7
+haralyzer==1.8.0
