@@ -2,15 +2,14 @@ import numpy as np
 import warnings as wrn
 
 class Art2:
-    def __init__(self, input_size: int, output_size: int, vigilance: float, theta: float):
+    def __init__(self, input_size: int, vigilance: float, theta: float):
         self.input_size = input_size
-        self.output_size = output_size
         self.vigilance = vigilance
         self.theta = theta
 
         self.s = np.zeros(self.input_size)
         self.f1 = np.zeros(self.input_size)
-        self.f2 = np.zeros(self.output_size)
+        self.f2 = np.zeros(1)
         # self.first_free = 0
 
         self.a = 10
@@ -28,8 +27,11 @@ class Art2:
         self.p = np.zeros(self.input_size)
         self.q = np.zeros(self.input_size)
 
-        self.wei = np.ones([self.input_size, self.output_size]) * 5.0
-        self.t = np.zeros([self.output_size, self.input_size])
+        self.defwei = 1.0
+        self.wei = np.ones([self.input_size, 1]) * self.defwei
+        self.t = np.zeros([1, self.input_size])
+        
+        self.added = 0
 
     def learn(self, inputs: [np.ndarray], epochs: int, learning_its: int):
 
@@ -39,7 +41,7 @@ class Art2:
                 self.s = inputs[i]
                 # print(i)
                 # steps 3-8
-                j = self.predict(self.s)
+                j = self.predict(self.s, True)
                 # print(j)
                 for it in range(learning_its):
                     # step 9
@@ -50,13 +52,14 @@ class Art2:
                     # step 10
 
                     self.update_F1_act(j)
-            print(f'epoch - {epoch}')
+            print(f'epoch - {epoch}. Added {self.added} clusters')
+            self.added = 0
 
-                    # step 11
-                    # TODO stop condition when weight aren't updated anymore?
+            # step 11
+            # TODO stop condition when weight aren't updated anymore?
 
-                # step 12
-                # if all epochs done, then stop
+            # step 12
+            # if all epochs done, then stop
 
             pass
 
@@ -80,16 +83,17 @@ class Art2:
 
         self.f2 = np.dot(self.wei.T, self.p)
 
-    def select_resonant(self) -> int:
+    def select_resonant(self, learning: bool) -> int:
         reset = True
         while reset:
 
             # step 6
             j = np.argmax(self.f2)
             if(self.f2[j] == -1):
-                wrn.warn('Too few classes')
-                break
-            # TODO no reaction to lack of available new classes
+                if not learning:
+                    break
+                j = self.add_cluster()
+                self.added += 1
 
             # step 7
             self.update_U() # self.u = self.v / (self.e + self.norm(self.v))
@@ -109,12 +113,21 @@ class Art2:
 
         return j
 
-    def predict(self, vector: np.ndarray) -> int:
+    def predict(self, vector: np.ndarray, learning: bool = False) -> int:
         self.s = vector
         self.forward_prop()
         # print(self.p)
-        j = self.select_resonant()
+        j = self.select_resonant(learning)
         return j
+
+    def add_cluster(self):
+        n = self.f2.shape[0]
+
+        self.f2 = np.append(self.f2, 1)
+        self.wei = np.append(self.wei, np.ones([self.input_size, 1]) * self.defwei, axis=1)
+        self.t = np.append(self.t, np.zeros([1, self.input_size]), axis=0)
+
+        return n
 
     def norm(self, vector: np.ndarray):
         return np.sqrt(np.sum(np.square(vector)))

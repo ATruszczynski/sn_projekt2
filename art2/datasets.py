@@ -6,6 +6,7 @@ import sklearn.metrics as sm
 import pandas as pd
 from sklearn import preprocessing
 import itertools
+from art2.main import analyse_clustering
 
 from art2 import loader
 from art2.art import Art2
@@ -51,16 +52,13 @@ def codingFunc2(points: np.ndarray):
         codedPoints[p, :] = codedPoint
     return codedPoints
 
+
+
 def hexagons():
     points, labels = loader.load_data_from_file(f"{pathToFolder}hexagon.csv", norm=False) # 94%
-    #codedPoints = codingFunc(points=points, step=1/100)
-    codedPoints = points
 
-    # points, labels = loader.load_data_from_file(f"{pathToFolder}hexagon.csv") # 83%
-    # codedPoints = codingFunc2(points=points)
-
-    net = Art2(codedPoints.shape[1], 100, 0.95, 0.005)
-    net.learn(codedPoints, epochs=100, learning_its=5)
+    net = Art2(points.shape[1], 0.93, 0.01)
+    net.learn(points, epochs=10, learning_its=10)
 
     plt.scatter(points[:,0], points[:,1], c=labels)
     plt.title("Original")
@@ -68,31 +66,25 @@ def hexagons():
 
     labels2 = []
     for i in range(len(points)):
-        labels2.append(net.predict(codedPoints[i]))
+        labels2.append(net.predict(points[i]))
 
     plt.scatter(points[:,0], points[:,1], c=labels2)
     plt.title("Clusterisation")
     plt.show()
 
-    randScore = sm.adjusted_rand_score(labels, labels2)
-    labels2 = np.array(labels2)
-    for i in range(len(np.unique(labels2))):
-        print(f'Class {i} - {len(labels2[labels2==i])}')
-    print(randScore)
+    analyse_clustering(labels, labels2)
 
 def cube() -> Art2:
-    points, labels = loader.load_data_from_file(f"{pathToFolder}cube.csv", norm=True) # 73
-    codedPoints = codingFunc(points=points, step=0.025, a=20, b=2)
+    points, labels = loader.load_data_from_file(f"{pathToFolder}cube.csv")
 
-    # points, labels = loader.load_data_from_file(f"{pathToFolder}cube.csv") # 53
-    # codedPoints = codingFunc2(points=points)
+    points = points - np.average(points, axis=0)
 
-    net = Art2(codedPoints.shape[1], len(np.unique(labels)), 0.90, 0.0001)
-    net.learn(codedPoints, epochs=10, learning_its=5)
+    net = Art2(points.shape[1], vigilance=0.92, theta=0.005)
+    net.learn(points, epochs=10, learning_its=35)
 
     labels2 = []
     for i in range(len(points)):
-        labels2.append(net.predict(codedPoints[i]))
+        labels2.append(net.predict(points[i]))
 
 
     fig = plt.figure(figsize = (10, 7))
@@ -107,21 +99,19 @@ def cube() -> Art2:
     plt.title("Clusterisation")
     plt.show()
 
-    randScore = sm.adjusted_rand_score(labels, labels2)
-    labels2 = np.array(labels2)
-    for i in range(len(np.unique(labels2))):
-        print(f'Class {i} - {len(labels2[labels2==i])}')
-    print(randScore)
+    analyse_clustering(labels, labels2)
 
     return net
 
 def cube_nm(net: Art2):
-    points, labels = loader.load_data_from_file(f"{pathToFolder}cube-notmatching.csv", norm=True)
-    codedPoints = codingFunc(points=points, step=0.025, a=20, b=2)
+    cp, _ = loader.load_data_from_file(f"{pathToFolder}cube.csv")
+    points, labels = loader.load_data_from_file(f"{pathToFolder}cube-notmatching.csv")
+
+    points = points - np.average(cp, axis=0)
 
     labels2 = []
     for i in range(len(points)):
-        labels2.append(net.predict(codedPoints[i]))
+        labels2.append(net.predict(points[i]))
 
 
     fig = plt.figure(figsize = (10, 7))
@@ -136,20 +126,8 @@ def cube_nm(net: Art2):
     plt.title("Clusterisation")
     plt.show()
 
-    randScore = sm.adjusted_rand_score(labels, labels2)
-    labels2 = np.array(labels2)
-    for i in range(len(np.unique(labels2))):
-        print(f'Class {i} - {len(labels2[labels2==i])}')
-    print(randScore)
+    analyse_clustering(labels, labels2)
 
-
-hexagons()
-# net = cube()
-# cube_nm(net)
-# dd  = itertools.product([1,2,3],['a','b'],[4,5])
-# for i in dd:
-#     print(i)
-# d = codingFunc(np.array([[0,0], [0.5, 0.5], [1, 1]]))
-# print(d)
-#
-# r = []
+# hexagons()
+net = cube()
+cube_nm(net)
