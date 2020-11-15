@@ -5,6 +5,7 @@ from sklearn import preprocessing
 import sklearn.metrics as sm
 import numpy as np
 
+from art2.main import analyse_clustering, reduce
 from art2.art import Art2
 
 mnist_path = 'C:\\Users\\aleks\\Desktop\\MNIST'
@@ -34,16 +35,23 @@ test_images = test_images/255
 test_images = train_images
 test_labels = train_labels
 
-howMany = 300
+# howMany = 5000
+howMany = int(len(test_images)/1)
 # howMany = len(test_images)
 
 
 test_images = test_images[0:howMany]
 test_labels = test_labels[0:howMany]
 
-net = Art2(28*28, 1000, 0.01, 0.05)
+# test_images = reduce(test_images)
 
-net.learn(test_images, epochs=30, learning_its=10)
+# net = Art2(28*28, vigilance=0.845, theta=0.001)
+#
+# net.learn(test_images, epochs=5, learning_its=30)
+
+net = Art2(28*28, vigilance=0.85, theta=0.001)
+
+net.learn(test_images, epochs=5, learning_its=30)
 
 conf_mat = np.zeros((10,10))
 
@@ -52,11 +60,11 @@ for i in range(len(test_images)):
     pred = net.predict(test_images[i])
     # conf_mat[test_labels[i], pred] += 1
     labels2.append(pred)
-randScore = sm.adjusted_rand_score(test_labels.flatten(), labels2)
-labels2 = np.array(labels2)
-for i in range(len(np.unique(labels2))):
-    print(f'Class {i} - {len(labels2[labels2==i])}')
-print(randScore)
+
+analyse_clustering(test_labels.flatten(), labels2)
+
+
+
 
 # print(conf_mat)
 #

@@ -52,6 +52,8 @@ class Art2:
                     # step 10
 
                     self.update_F1_act(j)
+                if i % 1000 == 0:
+                    print(f'Analysed {i} points')
             print(f'epoch - {epoch}. Added {self.added} clusters')
             self.added = 0
 
