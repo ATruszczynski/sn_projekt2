@@ -52,14 +52,15 @@ def codingFunc2(points: np.ndarray):
     return codedPoints
 
 def hexagons():
-    points, labels = loader.load_data_from_file(f"{pathToFolder}hexagon.csv", norm=True) # 94%
-    codedPoints = codingFunc(points=points, step=1/10)
+    points, labels = loader.load_data_from_file(f"{pathToFolder}hexagon.csv", norm=False) # 94%
+    #codedPoints = codingFunc(points=points, step=1/100)
+    codedPoints = points
 
     # points, labels = loader.load_data_from_file(f"{pathToFolder}hexagon.csv") # 83%
     # codedPoints = codingFunc2(points=points)
 
-    net = Art2(codedPoints.shape[1], len(np.unique(labels)), 0.95, 0.0001)
-    net.learn(codedPoints, epochs=10, learning_its=5)
+    net = Art2(codedPoints.shape[1], 100, 0.95, 0.005)
+    net.learn(codedPoints, epochs=100, learning_its=5)
 
     plt.scatter(points[:,0], points[:,1], c=labels)
     plt.title("Original")
@@ -142,9 +143,9 @@ def cube_nm(net: Art2):
     print(randScore)
 
 
-
-net = cube()
-cube_nm(net)
+hexagons()
+# net = cube()
+# cube_nm(net)
 # dd  = itertools.product([1,2,3],['a','b'],[4,5])
 # for i in dd:
 #     print(i)

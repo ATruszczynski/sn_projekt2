@@ -34,23 +34,23 @@ test_images = test_images/255
 test_images = train_images
 test_labels = train_labels
 
-howMany = 3000
+howMany = 300
 # howMany = len(test_images)
 
 
 test_images = test_images[0:howMany]
 test_labels = test_labels[0:howMany]
 
-net = Art2(28*28, 10, 0.9, 0.001)
+net = Art2(28*28, 1000, 0.01, 0.05)
 
-net.learn(test_images, epochs=100, learning_its=5)
+net.learn(test_images, epochs=30, learning_its=10)
 
 conf_mat = np.zeros((10,10))
 
 labels2 = []
 for i in range(len(test_images)):
     pred = net.predict(test_images[i])
-    conf_mat[test_labels[i], pred] += 1
+    # conf_mat[test_labels[i], pred] += 1
     labels2.append(pred)
 randScore = sm.adjusted_rand_score(test_labels.flatten(), labels2)
 labels2 = np.array(labels2)
@@ -58,8 +58,8 @@ for i in range(len(np.unique(labels2))):
     print(f'Class {i} - {len(labels2[labels2==i])}')
 print(randScore)
 
-#print(conf_mat)
-
+# print(conf_mat)
+#
 # def swapCols(matrix: np.ndarray, col1: int, col2: int):
 #     matrix[:, [col1, col2]] = matrix[:, [col2, col1]]
 #     return matrix

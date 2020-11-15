@@ -50,6 +50,7 @@ class Art2:
                     # step 10
 
                     self.update_F1_act(j)
+            print(f'epoch - {epoch}')
 
                     # step 11
                     # TODO stop condition when weight aren't updated anymore?
@@ -120,7 +121,7 @@ class Art2:
 
     def threshold_func(self, vector: np.ndarray):
         result = vector.copy() # TODO is this copy?
-        result[vector < self.theta] = 0 # TODO how should it react to negative numbers?
+        result[np.abs(vector) < self.theta] = 0 # TODO how should it react to negative numbers?
         return result
 
     def update_W(self):
