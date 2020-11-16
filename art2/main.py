@@ -5,11 +5,16 @@ import matplotlib.pyplot as plt
 import sklearn.metrics as sm
 import pandas as pd
 from sklearn import preprocessing
+from mpl_toolkits.mplot3d import axes3d
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib import style
 
 from art2 import loader
 from art2.art import Art2
 from astar_art import ART2
 
+# style.use('ggplot')
 
 def analyse_clustering(labels, labels2):
     labels2 = np.array(labels2)
@@ -37,3 +42,47 @@ def reduce(images: np.ndarray):
     newImages = np.array(newImages)
     newImages = newImages.reshape([newImages.shape[0], newImages.shape[2]])
     return  newImages
+
+def visualise_clusterisation(org_labels, clus_labels, name):
+    rows = np.max(org_labels) + 1
+    cols = np.max(clus_labels) + 1
+
+    conf_matrix = np.zeros([rows, cols])
+
+    unclassified = []
+
+    for i in range(len(org_labels)):
+        org_label = org_labels[i]
+        clus_label = clus_labels[i]
+        if clus_label == -1:
+            unclassified.append(org_label)
+        else:
+           conf_matrix[org_labels[i], clus_labels[i]] += 1
+
+    unclassified = np.array(unclassified)
+
+    x = []
+    y = []
+    s = []
+    for r in range(rows):
+        for c in range(cols):
+            x.append(r)
+            y.append(c)
+            s.append(conf_matrix[r,c])
+
+    for c in np.unique(unclassified):
+        count = len(unclassified[unclassified == c])
+        x.append(c)
+        y.append(-1)
+        s.append(count)
+
+
+    s = s/np.max(s) * 350
+
+    plt.scatter(x, y, s)
+    plt.xlabel("Original")
+    plt.ylabel("Clusters")
+    plt.xticks(range(np.min(org_labels), np.max(org_labels) + 1, 1))
+    plt.yticks(range(np.min(clus_labels), np.max(clus_labels) + 1, 1))
+    plt.savefig(f'img/{name}')
+    plt.show()

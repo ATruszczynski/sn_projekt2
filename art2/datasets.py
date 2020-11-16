@@ -6,7 +6,7 @@ import sklearn.metrics as sm
 import pandas as pd
 from sklearn import preprocessing
 import itertools
-from art2.main import analyse_clustering
+from art2.main import analyse_clustering, visualise_clusterisation
 
 from art2 import loader
 from art2.art import Art2
@@ -62,6 +62,7 @@ def hexagons():
 
     plt.scatter(points[:,0], points[:,1], c=labels)
     plt.title("Original")
+    plt.savefig('img/hexa_org')
     plt.show()
 
     labels2 = []
@@ -69,10 +70,13 @@ def hexagons():
         labels2.append(net.predict(points[i]))
 
     plt.scatter(points[:,0], points[:,1], c=labels2)
-    plt.title("Clusterisation")
+    plt.title("Clustering")
+    plt.savefig('img/hexa_clus')
     plt.show()
 
     analyse_clustering(labels, labels2)
+
+    visualise_clusterisation(labels, labels2, "hexa_clus_vis")
 
 def cube() -> Art2:
     points, labels = loader.load_data_from_file(f"{pathToFolder}cube.csv")
@@ -91,15 +95,19 @@ def cube() -> Art2:
     ax = plt.axes(projection ="3d")
     ax.scatter3D(points[:,0], points[:,1], points[:,2], c=labels)
     plt.title("Original")
+    plt.savefig('img/cube_org')
     plt.show()
 
     fig = plt.figure(figsize = (10, 7))
     ax = plt.axes(projection ="3d")
     ax.scatter3D(points[:,0], points[:,1], points[:,2], c=labels2)
-    plt.title("Clusterisation")
+    plt.title("Clustering")
+    plt.savefig('img/cube_clus')
     plt.show()
 
     analyse_clustering(labels, labels2)
+
+    visualise_clusterisation(labels, labels2, "cube_clus_vis")
 
     return net
 
@@ -118,16 +126,20 @@ def cube_nm(net: Art2):
     ax = plt.axes(projection ="3d")
     ax.scatter3D(points[:,0], points[:,1], points[:,2], c=labels)
     plt.title("Original")
+    plt.savefig('img/cube_nm_org')
     plt.show()
 
     fig = plt.figure(figsize = (10, 7))
     ax = plt.axes(projection ="3d")
     ax.scatter3D(points[:,0], points[:,1], points[:,2], c=labels2)
-    plt.title("Clusterisation")
+    plt.title("Clustering")
+    plt.savefig('img/cube_nm_clus')
     plt.show()
 
     analyse_clustering(labels, labels2)
+    visualise_clusterisation(labels, labels2, "cube_nm_clus_vis")
 
-# hexagons()
+
+hexagons()
 net = cube()
 cube_nm(net)

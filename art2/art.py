@@ -62,8 +62,8 @@ class Art2:
                 if i % self.input_size/100 == 0:
                     activation_dict[i] = j
 
-                if i % 1000 == 0:
-                    print(f'Analysed {i} points')
+                # if i % 1000 == 0:
+                #     print(f'Analysed {i} points')
             print(f'epoch - {epoch}. Added {self.added} clusters')
             self.added = 0
             activation_dicts.append(activation_dict)
@@ -73,8 +73,8 @@ class Art2:
             # step 12
             # if all epochs done, then stop
             pass
-        print(activation_dicts)
-        print(weights_visualisation)
+        # print(activation_dicts)
+        # print(weights_visualisation)
 
     def forward_prop(self):
         self.init_F1_act()
@@ -104,6 +104,7 @@ class Art2:
             j = np.argmax(self.f2)
             if self.f2[j] == -1:
                 if not learning:
+                    j = -1
                     break
                 j = self.add_cluster()
                 self.added += 1
