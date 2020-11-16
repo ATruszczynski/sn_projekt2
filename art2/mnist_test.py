@@ -43,15 +43,16 @@ howMany = int(len(test_images)/1)
 test_images = test_images[0:howMany]
 test_labels = test_labels[0:howMany]
 
-# test_images = reduce(test_images)
 
-# net = Art2(28*28, vigilance=0.845, theta=0.001)
+# net = Art2(28*28, vigilance=0.85, theta=0.001)
 #
 # net.learn(test_images, epochs=5, learning_its=30)
 
-net = Art2(28*28, vigilance=0.85, theta=0.001)
+test_images = reduce(test_images)
 
-net.learn(test_images, epochs=5, learning_its=30)
+net = Art2(14*14, vigilance=0.8615, theta=0.001)
+
+net.learn(test_images, epochs=5, learning_its=20)
 
 conf_mat = np.zeros((10,10))
 
