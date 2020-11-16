@@ -58,9 +58,12 @@ class Art2:
 
                 if j == 4:  # FIXME the magic number 4 is here bcs
                     weights_visualisation.append((self.wei[:, 1], self.t[1, :]))
+
                 if i % self.input_size/100 == 0:
                     activation_dict[i] = j
 
+                if i % 1000 == 0:
+                    print(f'Analysed {i} points')
             print(f'epoch - {epoch}. Added {self.added} clusters')
             self.added = 0
             activation_dicts.append(activation_dict)
