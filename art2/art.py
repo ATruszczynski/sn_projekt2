@@ -1,6 +1,7 @@
 import numpy as np
 import warnings as wrn
 
+
 class Art2:
     def __init__(self, input_size: int, vigilance: float, theta: float):
         self.input_size = input_size
@@ -35,9 +36,12 @@ class Art2:
 
     def learn(self, inputs: [np.ndarray], epochs: int, learning_its: int):
 
-        for epoch in range(epochs): # step 1
-            for i in range(len(inputs)): # step 2
+        activation_dicts = []
+        weights_visualisation = []
 
+        for epoch in range(epochs): # step 1
+            activation_dict = {}
+            for i in range(len(inputs)): # step 2
                 self.s = inputs[i]
                 # print(i)
                 # steps 3-8
@@ -50,18 +54,24 @@ class Art2:
                     self.t[j,:] = self.alpha * self.d * self.u + (1 + self.alpha * self.d * (self.d - 1)) * self.t[j,:]
                     self.wei[:,j] = self.alpha * self.d * self.u + (1 + self.alpha * self.d * (self.d - 1)) * self.wei[:,j]
                     # step 10
-
                     self.update_F1_act(j)
+
+                if j == 4:  # FIXME the magic number 4 is here bcs
+                    weights_visualisation.append((self.wei[:, 1], self.t[1, :]))
+                if i % self.input_size/100 == 0:
+                    activation_dict[i] = j
+
             print(f'epoch - {epoch}. Added {self.added} clusters')
             self.added = 0
-
+            activation_dicts.append(activation_dict)
             # step 11
             # TODO stop condition when weight aren't updated anymore?
 
             # step 12
             # if all epochs done, then stop
-
             pass
+        print(activation_dicts)
+        print(weights_visualisation)
 
     def forward_prop(self):
         self.init_F1_act()
@@ -89,7 +99,7 @@ class Art2:
 
             # step 6
             j = np.argmax(self.f2)
-            if(self.f2[j] == -1):
+            if self.f2[j] == -1:
                 if not learning:
                     break
                 j = self.add_cluster()
