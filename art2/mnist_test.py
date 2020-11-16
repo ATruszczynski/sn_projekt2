@@ -52,7 +52,7 @@ test_images = reduce(test_images)
 
 net = Art2(14*14, vigilance=0.8615, theta=0.001)
 
-net.learn(test_images, epochs=5, learning_its=20)
+net.learn(test_images, epochs=5, learning_its=20) W
 
 conf_mat = np.zeros((10,10))
 
